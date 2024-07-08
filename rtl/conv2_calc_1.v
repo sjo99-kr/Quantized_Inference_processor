@@ -1,7 +1,7 @@
 module conv2_calc_1(
 	input clk,
-  input rst_n,
-  input valid_out_buf,
+  	input rst_n,
+  	input valid_out_buf,
 	input signed [11:0] data_out1_0, data_out1_1, data_out1_2, data_out1_3, data_out1_4,
 	  data_out1_5, data_out1_6, data_out1_7, data_out1_8, data_out1_9,
 	  data_out1_10, data_out1_11, data_out1_12, data_out1_13, data_out1_14,
