@@ -45,6 +45,7 @@ class Quantized_Inference_Processor(nn.Module):
         out = self.conv_layer(x) 
         out = out.view(-1) #batch_size
         out = self.fc_layer(out)
+        out = self.softmax(out)
         return out
 
 #------------------------------------------------------------------------------------------#
