@@ -43,7 +43,7 @@ class Quantized_Inference_Processor(nn.Module):
         
     def forward(self, x):
         out = self.conv_layer(x) 
-        out = out.view(256,-1) #batch_size
+        out = out.view(-1) #batch_size
         out = self.fc_layer(out)
         out = nn.softmax(out)
         return out
