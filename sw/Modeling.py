@@ -61,7 +61,6 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 epochs = 10
 steps = 0
-print_every = 50
 
 
 for i in range(epochs):
