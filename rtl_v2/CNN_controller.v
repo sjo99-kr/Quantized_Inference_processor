@@ -24,7 +24,6 @@ module CNN_controller(
     localparam CONV1 = 2'b00;
     localparam CONV2 = 2'b01;
     localparam FC1 = 2'b10;
-    localparam FC2 = 2'b11;
     
     wire buf_valid;
     wire [7:0] buf_out1, buf_out2, buf_out3, buf_out4, buf_out5, buf_out6, buf_out7, buf_out8, buf_out9;
