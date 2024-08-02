@@ -2,7 +2,7 @@
 
 
 
-module CNN_Top(
+module CNN_controller(
     input i_clk,
     input i_rst,
     
