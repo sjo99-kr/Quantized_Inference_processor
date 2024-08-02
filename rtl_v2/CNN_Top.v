@@ -83,7 +83,7 @@ module CNN_Top(
     );
     
     
-    conv1_calc conv1_layer(
+    conv1_layer conv1_layer(
         .i_clk(i_clk),
         .i_rst(i_rst),
         .i_valid(buf_valid),
