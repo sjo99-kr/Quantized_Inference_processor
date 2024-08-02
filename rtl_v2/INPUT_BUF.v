@@ -38,10 +38,10 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
         else begin
             if((wr_pt+1) % 28 == 0)begin
                 img_count <= img_count + 1;
-                if(img_count == 28)begin
-                    o_intr <= 1;
-                    img_count <= 0;
-                end
+            end
+            if(img_count == 28 && rd_pt==24)begin
+                o_intr <= 1;
+                img_count <= 0;
             end
             else begin
                 o_intr <= 0;
@@ -57,7 +57,6 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
             for(i =0; i < width * 5; i = i+1)begin
                 buffer[i] <= 0;
             end
-            img_count <= 0;
             wr_pt <= 0;
             rd_flag <= 0;
         end        
@@ -70,6 +69,10 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
                     wr_pt <= 0;
                     rd_flag <= 1;
                 end
+            end
+            if(o_intr)begin
+                rd_flag <= 0;
+                wr_pt <= 0;
             end
         end
     end
@@ -99,6 +102,11 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
                         end
                     end
                 end
+            end
+            if(o_intr)begin
+                rd_pt <= 0;
+                rd_pos <= 0;
+                output_valid <= 0;
             end
         end
      end
