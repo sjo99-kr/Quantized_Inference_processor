@@ -1,4 +1,4 @@
-module FC_layer #(parameter INPUT_NUM = 48, OUTPUT_NUM = 16) (
+module FC1_layer #(parameter INPUT_NUM = 48, OUTPUT_NUM = 16) (
    input i_clk,
    input i_rst,
    input i_valid,
