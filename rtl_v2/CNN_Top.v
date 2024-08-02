@@ -17,10 +17,10 @@ module CNN_Top(
     
     );
     
-    assign s_axis_ready = conv1_weight_done & conv2_weight_done;
+    assign s_axis_ready = conv1_weight_done & conv2_weight_done &fc1_weight_done;
     
-    reg [1:0] state; // 00 -> layer 1, 01 -> layer 2, 10 -> fc 1, 11 -> fc 2
-    
+    reg [1:0] rd_state; // read from bram  //00 -> layer 1, 01 -> layer 2, 10 -> fc 1, 11 -> fc 2
+    reg [1:0] wr_state; // write to bram
     localparam CONV1 = 2'b00;
     localparam CONV2 = 2'b01;
     localparam FC1 = 2'b10;
@@ -83,7 +83,7 @@ module CNN_Top(
     );
     
     
-    conv1_layer conv1_layer(
+    conv1_calc conv1_layer(
         .i_clk(i_clk),
         .i_rst(i_rst),
         .i_valid(buf_valid),
@@ -101,7 +101,10 @@ module CNN_Top(
     wire signed [15:0] max1_out0, max1_out1, max1_out2;
     wire max1_valid;
     
-    Max_relu max_relu_1(
+    Max_relu #(.HALF_WIDTH(12), 
+            .HALF_HEIGHT(12), 
+            .HALF_WIDTH_BIT(4)
+        ) max_relu_1(
         .i_clk(i_clk),
         .i_rst(i_rst),
         .i_valid(conv1_out_valid),
@@ -115,10 +118,15 @@ module CNN_Top(
     wire [47:0] imme_out;
     reg ena, enb;
     reg wea;
-    reg read_flag;
-    reg [7:0] state_cnt;
+    reg conv1_read_flag;
+    reg conv2_read_flag;
+    reg [7:0] wr_state_cnt;
+    reg [7:0] rd_state_cnt;
+    
     reg conv2_i_valid_reg;
+    reg fc1_i_valid_reg;
     wire conv2_i_valid;
+    wire fc1_i_valid;
     
     /// conv2 addr control  ///
     reg [2:0] conv2_col; // 0~4
@@ -127,14 +135,17 @@ module CNN_Top(
     reg [3:0] conv2_poi; // 0~8
     ///////////////////////////
     
+    assign fc1_i_valid = fc1_i_valid_reg;
     assign conv2_i_valid = conv2_i_valid_reg;
+    
     always@(posedge i_clk)begin
         if(!i_rst)begin
             conv2_i_valid_reg <= 0;
+            fc1_i_valid_reg <= 0;
         end
         else begin
-            conv2_i_valid_reg <= enb;
-            
+            conv2_i_valid_reg <= enb & (rd_state == CONV1);
+            fc1_i_valid_reg <= enb & (rd_state == CONV2);
         end
     end
 
@@ -145,9 +156,9 @@ module CNN_Top(
             conv2_pos <= 0; conv2_poi <= 0;
         end
         else begin
-            case(state)
+            case(rd_state)
                 CONV1 : begin
-                    if(read_flag)begin
+                    if(conv1_read_flag)begin
                         conv2_col <= conv2_col + 1;
                         if(conv2_col == 4)begin
                             conv2_col <= 0;
@@ -171,51 +182,113 @@ module CNN_Top(
         end
     end
     
+    always@(posedge i_clk)begin
+        if(!i_rst)begin
+            wr_state <= 0;
+            imme_addr_a <= 0; ena <=0;
+            wr_state_cnt <= 0;
+        end
+        else begin
+            case(wr_state) 
+                CONV1 :begin
+                    if(max1_valid)begin
+                        if(ena)begin
+                            imme_addr_a <= imme_addr_a +6;
+                        end
+                        ena <= 1; wea <= 1;
+                        imme_in <= {max1_out2, max1_out1, max1_out0};
+                        wr_state_cnt <= wr_state_cnt + 1;
+                        
+                        
+                    end
+                    else if(wr_state_cnt == 144)begin
+                            wr_state_cnt <= 0; 
+                            ena <= 0; wea <= 0;
+                            imme_addr_a <= 0;
+                            wr_state <= CONV2;
+                    end
+                end
+                CONV2 :begin
+                    if(max2_valid)begin
+                        if(ena)begin
+                            imme_addr_a <= imme_addr_a + 6;
+                        end
+                        ena <= 1; wea <= 1;
+                        imme_in <= {max2_out2, max2_out1, max2_out0};
+                        wr_state_cnt <= wr_state_cnt + 1;
+                        
+                    end
+                    else if(wr_state_cnt == 16)begin
+                            wr_state_cnt <= 0;
+                            ena<=0; wea <= 0;
+                            imme_addr_a <= 0;
+                            wr_state <= FC1;
+                    end
+                
+                end
+            endcase
+        
+        end
+    
+    end
+    always@(posedge i_clk)begin
+        if(!i_rst)begin
+            conv1_read_flag <= 0;
+            conv2_read_flag <= 0;
+        end
+        else begin
+            if(wr_state_cnt==143 && wr_state == CONV1)begin
+                conv1_read_flag <= 1;
+            end
+            if((imme_addr_b == 858) && (rd_state==CONV1))begin
+                conv1_read_flag <= 0;
+            end
+            if(wr_state_cnt == 15 && wr_state == CONV2)begin
+                conv2_read_flag <= 1;
+            end
+            if((imme_addr_b == 90) && rd_state == CONV2)begin
+                conv2_read_flag <= 0;
+            end
+        end
+    end
     
     
     always@(posedge i_clk)begin
         if(!i_rst)begin
-            state <= 2'b00;
-            imme_addr_a <= 0; imme_addr_b <= 0;
-            ena <= 0; enb <= 0;
-            wea <= 0; read_flag <= 0;
-            state_cnt <= 0;
+            rd_state <= 2'b00;
+            imme_addr_b <= 0;
+            enb <= 0;
+            rd_state_cnt <= 0;
         end
         else begin
-            case(state)
+            case(rd_state)
                 CONV1 : begin
-                    if(max1_valid && ~read_flag)begin // write bram
-                        if(ena)begin
-                            imme_addr_a <=  imme_addr_a  + 6;
-                        end
-                        ena <= 1; wea <= 1;
-                        imme_in <= {max1_out2, max1_out1, max1_out0};
-                        state_cnt <= state_cnt + 1;
-                        if(state_cnt == 144)begin
-                            read_flag <= 1;
-                            imme_addr_a <= 0;
-                            ena <= 0; wea <= 0;
-                            imme_in<=0;
-                            state_cnt <= 0;
-                        end
-                    end
-                    else begin
                     /// 5x5 연산에 맞춰서 바꿔야 한다 
-                        if(read_flag)begin // read bram
+                    if(conv1_read_flag)begin // read bram
                             enb <= 1;
-                            imme_addr_b <= 6 * (conv2_pos + conv2_poi * 12 + conv2_col + conv2_row * 12);
-                            if((conv2_pos == 0) && (conv2_poi == 8) && (conv2_col ==1) && (conv2_row == 0))begin
-                                state <= CONV2;
-                                enb <= 0; imme_addr_b <= 0;
-                                state_cnt <= 0; 
-                                read_flag <= 0;
+                            if(enb)begin
+                                imme_addr_b <= 6 * (conv2_pos + conv2_poi * 12 + conv2_col + conv2_row * 12);
                             end
-                        end
+                            if(imme_addr_b == 858)begin
+                                rd_state <= CONV2;
+                                enb <= 0; imme_addr_b <= 0;
+                                rd_state_cnt <= 0; 
+                            end
                     end
                 end
                 CONV2 : begin
-                
-                end
+                        if(conv2_read_flag)begin
+                            enb <= 1;
+                            if(enb)begin
+                                imme_addr_b <= imme_addr_b + 6;
+                            end
+                            if(imme_addr_b == 90)begin
+                                rd_state <= FC1;
+                                enb <= 0; imme_addr_b <= 0;
+                                rd_state_cnt <=0;
+                            end
+                        end
+                    end
             endcase
         end
     end
@@ -282,9 +355,94 @@ module CNN_Top(
         .conv2_out_ch1(conv2_out1),
         .conv2_out_ch2(conv2_out2),
         .conv2_valid(conv2_valid),
+        
         .weight_done(conv2_weight_done)
       );
     
+    wire signed [15:0] max2_out0, max2_out1, max2_out2;
+    wire max2_valid;
+    
+    Max_relu #(
+            .HALF_WIDTH(4), 
+            .HALF_HEIGHT(4), 
+            .HALF_WIDTH_BIT(3) // 0~3, 3-1= 2
+        ) max_relu_2(
+            .i_clk(i_clk),
+            .i_rst(i_rst),
+            .i_valid(conv2_valid),
+            .conv_out_1(conv2_out0), .conv_out_2(conv2_out1), .conv_out_3(conv2_out2),
+            .max_value_1(max2_out0), .max_value_2(max2_out1), .max_value_3(max2_out2),
+            .valid_out_relu(max2_valid)
+        );
+        
+    reg bram2_en, fc1_weight_en;
+    reg [9:0] bram2_addr;
+    wire [7:0] fc1_filter;
     
     
+    always@(posedge i_clk)begin
+        if(!i_rst)begin
+            bram2_en <= 0;
+            bram2_addr <= 1;
+            fc1_weight_en <= 0;
+        end
+        else begin
+            if(bram2_addr == 784)begin
+                bram2_en <= 0;
+            end
+            else begin
+                if(bram2_en)begin
+                    bram2_addr <= bram2_addr + 1;
+                end
+                bram2_en <= 1;
+            end
+            fc1_weight_en <= bram2_en;
+        end
+    end
+    
+    
+    blk_mem_gen_2 fc1_weight_bram(
+        .clka(i_clk),
+        .ena(bram2_en),
+        .addra(bram2_addr),
+        .douta(fc1_filter)
+    );
+    
+    wire signed [15:0] fc1_out1, fc1_out2, fc1_out3, fc1_out4, fc1_out5, fc1_out6, fc1_out7, fc1_out8, fc1_out9, fc1_out10, fc1_out11, fc1_out12, fc1_out13, fc1_out14, fc1_out15, fc1_out16;
+    wire fc1_weight_done;
+    wire fc1_out_valid;
+    
+    FC1_layer#(
+        .INPUT_NUM(48),
+        .OUTPUT_NUM(16)
+    ) Fully_connect_1(
+        .i_clk(i_clk),
+        .i_rst(i_rst),
+        .i_valid(fc1_i_valid),
+        .filter(fc1_filter),
+        .weight_valid(fc1_weight_en),
+        
+        .data_in_1(imme_out[15:0]),
+        .data_in_2(imme_out[31:16]),
+        .data_in_3(imme_out[47:32]),
+        
+        .data_out1(fc1_out1),
+        .data_out2(fc1_out2),
+        .data_out3(fc1_out3),
+        .data_out4(fc1_out4),
+        .data_out5(fc1_out5),
+        .data_out6(fc1_out6),
+        .data_out7(fc1_out7),
+        .data_out8(fc1_out8),
+        .data_out9(fc1_out9),
+        .data_out10(fc1_out10),
+        .data_out11(fc1_out11),
+        .data_out12(fc1_out12),
+        .data_out13(fc1_out13),
+        .data_out14(fc1_out14),
+        .data_out15(fc1_out15),
+        .data_out16(fc1_out16),
+        .weight_done(fc1_weight_done),
+        .o_valid(fc1_out_valid)
+    );
 endmodule
