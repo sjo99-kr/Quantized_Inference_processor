@@ -28,7 +28,7 @@ module FC1_layer #(parameter INPUT_NUM = 48, OUTPUT_NUM = 16) (
        for(i =0; i< 768; i= i+1)begin
             weight[i] <= 0;
        end
-       for(j=0; j<768; j = j+1)begin
+       for(j=0; j<16; j = j+1)begin
             bias[j] <= 0;
        end
    end
