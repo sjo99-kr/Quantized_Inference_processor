@@ -8,7 +8,8 @@
 
 ### Functional Simulation
 ![image](https://github.com/user-attachments/assets/1891ce76-fe1a-4398-9784-b77bcf0cc4f2)
-(For one image (28x28x1), it takes** ~2400 cycles** for inferece)
+
+(For one image (28x28x1), it takes ~2400 cycles for inferece)
 
 (It takes about 790 Cycles for setting weight from Block ROM)
 
