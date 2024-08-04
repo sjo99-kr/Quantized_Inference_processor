@@ -11,7 +11,7 @@ ex) weight : 0.22 , Quantized Weight : 0.22 * 256 = 56)
 ![image](https://github.com/user-attachments/assets/b78332e1-0224-418d-9994-154a2dfa60b4)
 
 
-### Pre-Simulation
+### Functional Simulation
 ![image](https://github.com/user-attachments/assets/f5f25c5f-f7ca-4ac4-9bf5-b89a298f04c5)
 
 (For one image (28x28x1), it takes ~2400 cycles for inferece)
