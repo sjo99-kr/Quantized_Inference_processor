@@ -17,7 +17,7 @@ ex) weight : 0.22 , Quantized Weight : 0.22 * 256 = 56)
 (For one image (28x28x1), it takes ~2400 cycles for inferece)
 
 (It takes about 790 Cycles for setting weights from Block ROM)
-(you have to your own weights file for Block ROM setting)
+(you have to your own weights file(~.coe) for Block ROM setting)
 
 (It stores intermediate results in Block RAM)
 (Results of CONV1 and CONV2 data will go to BRAM.)
