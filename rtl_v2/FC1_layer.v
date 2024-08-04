@@ -126,22 +126,22 @@ reg [19:0] cal_reg1, cal_reg2, cal_reg3, cal_reg4, cal_reg5, cal_reg6, cal_reg7,
             end
             else if(cal_cnt ==15)begin
                 o_valid <= 1;
-                data_out1 <= {{4{cal_reg1[19]}}, cal_reg1[19:8]};
-                data_out2 <= {{4{cal_reg2[19]}}, cal_reg2[19:8]};
-                data_out3 <= {{4{cal_reg3[19]}}, cal_reg3[19:8]};
-                data_out4 <= {{4{cal_reg4[19]}}, cal_reg4[19:8]};
-                data_out5 <= {{4{cal_reg5[19]}}, cal_reg5[19:8]};
-                data_out6 <= {{4{cal_reg6[19]}}, cal_reg6[19:8]};
-                data_out7 <= {{4{cal_reg7[19]}}, cal_reg7[19:8]};
-                data_out8 <= {{4{cal_reg8[19]}}, cal_reg8[19:8]};
-                data_out9 <= {{4{cal_reg9[19]}}, cal_reg9[19:8]};
-                data_out10 <= {{4{cal_reg10[19]}}, cal_reg10[19:8]};
-                data_out11 <= {{4{cal_reg11[19]}}, cal_reg11[19:8]};
-                data_out12 <= {{4{cal_reg12[19]}}, cal_reg12[19:8]};
-                data_out13 <= {{4{cal_reg13[19]}}, cal_reg13[19:8]};
-                data_out14 <= {{4{cal_reg14[19]}}, cal_reg14[19:8]};
-                data_out15 <= {{4{cal_reg15[19]}}, cal_reg15[19:8]};
-                data_out16 <= {{4{cal_reg16[19]}}, cal_reg16[19:8]};
+                data_out1 <= (cal_reg1[19] == 0) ? {{4{cal_reg1[19]}}, cal_reg1[19:8]} : 0;
+                data_out2 <= (cal_reg2[19] == 0) ? {{4{cal_reg2[19]}}, cal_reg2[19:8]} : 0;
+                data_out3 <= (cal_reg3[19] == 0) ? {{4{cal_reg3[19]}}, cal_reg3[19:8]} : 0;
+                data_out4 <= (cal_reg4[19] == 0) ? {{4{cal_reg4[19]}}, cal_reg4[19:8]} : 0;
+                data_out5 <= (cal_reg5[19] == 0) ? {{4{cal_reg5[19]}}, cal_reg5[19:8]} : 0;
+                data_out6 <= (cal_reg6[19] == 0) ? {{4{cal_reg6[19]}}, cal_reg6[19:8]} : 0;
+                data_out7 <= (cal_reg7[19] == 0) ? {{4{cal_reg7[19]}}, cal_reg7[19:8]} : 0;
+                data_out8 <= (cal_reg8[19] == 0) ? {{4{cal_reg8[19]}}, cal_reg8[19:8]} : 0;
+                data_out9 <= (cal_reg9[19] == 0) ? {{4{cal_reg9[19]}}, cal_reg9[19:8]} : 0;
+                data_out10 <= (cal_reg10[19] == 0) ? {{4{cal_reg10[19]}}, cal_reg10[19:8]} : 0;
+                data_out11 <= (cal_reg11[19] == 0) ? {{4{cal_reg11[19]}}, cal_reg11[19:8]} : 0;
+                data_out12 <= (cal_reg12[19] == 0) ? {{4{cal_reg12[19]}}, cal_reg12[19:8]} : 0;
+                data_out13 <= (cal_reg13[19] == 0) ? {{4{cal_reg13[19]}}, cal_reg13[19:8]} : 0;
+                data_out14 <= (cal_reg14[19] == 0) ? {{4{cal_reg14[19]}}, cal_reg14[19:8]} : 0;
+                data_out15 <= (cal_reg15[19] == 0) ? {{4{cal_reg15[19]}}, cal_reg15[19:8]} : 0;
+                data_out16 <= (cal_reg16[19] == 0) ? {{4{cal_reg16[19]}}, cal_reg16[19:8]} : 0;
 
             end
             else begin
