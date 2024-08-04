@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/f3f0511f-11d5-4d71-925f-1fa62a95c47b)## Quantized Inference processor For Custom CNN model 
+## Quantized Inference processor For Custom CNN model 
 ### (Conv layer : 2 , MLP layer : 2) 
 
 
