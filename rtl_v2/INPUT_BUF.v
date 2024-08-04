@@ -18,7 +18,7 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
     output reg [7:0] output_data7, output_data15, output_data23,
     output reg [7:0] output_data8, output_data16, output_data24,
     output reg output_valid,
-    output reg o_intr
+    output reg buf_done_intr
     );
     
     reg [7:0] buffer [width * 5 - 1:0]; // six line buffers for first conv layer
@@ -32,7 +32,7 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
     // image count setting
     always@(posedge i_clk)begin
         if(!i_rst)begin
-            o_intr <= 0;
+            buf_done_intr <= 0;
             img_count <= 0;
         end
         else begin
@@ -40,11 +40,11 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
                 img_count <= img_count + 1;
             end
             if(img_count == 28 && rd_pt==24)begin
-                o_intr <= 1;
+                buf_done_intr <= 1;
                 img_count <= 0;
             end
             else begin
-                o_intr <= 0;
+                buf_done_intr <= 0;
             end
         end
     
@@ -70,7 +70,7 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
                     rd_flag <= 1;
                 end
             end
-            if(o_intr)begin
+            if(buf_done_intr)begin
                 rd_flag <= 0;
                 wr_pt <= 0;
             end
@@ -103,7 +103,7 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
                     end
                 end
             end
-            if(o_intr)begin
+            if(buf_done_intr)begin
                 rd_pt <= 0;
                 rd_pos <= 0;
                 output_valid <= 0;
