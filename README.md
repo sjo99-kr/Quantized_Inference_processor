@@ -19,3 +19,6 @@ ex) weight : 0.22 , Quantized Weight : 0.22 * 256 = 56)
 (It takes about 790 Cycles for setting weight from Block ROM)
 
 (It stores intermediate results in Block RAM)
+
+### Timing Spec
+Clock : 145Mhz, WHS  0.146ns, WNS  1.718ns
