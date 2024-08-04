@@ -95,7 +95,6 @@ always@(posedge i_clk)begin
             DATA_IN : begin
                 if(i_valid)begin
                     cal_cnt <= cal_cnt + 1;
-                    // address에 대한 컨트롤 필요하다 .-> 5x5 연산 순서랑 입력 데이터 순서를 맞춰야한다.
                     ch0_out <= data_ch0 * weight_1_ch0[cal_cnt] + data_ch1 * weight_1_ch1[cal_cnt] + data_ch2 * weight_1_ch2[cal_cnt];
                     ch1_out <= data_ch0 * weight_2_ch0[cal_cnt] + data_ch1 * weight_2_ch1[cal_cnt] + data_ch2 * weight_2_ch2[cal_cnt];
                     ch2_out <= data_ch0 * weight_3_ch0[cal_cnt] + data_ch1 * weight_3_ch1[cal_cnt] + data_ch2 * weight_3_ch2[cal_cnt];
