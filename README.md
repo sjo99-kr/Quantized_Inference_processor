@@ -25,3 +25,6 @@ ex) weight : 0.22 , Quantized Weight : 0.22 * 256 = 56)
 ### Timing Spec
 Clock : 145Mhz, WHS  0.146ns, WNS  1.718ns
 
+
+### Hardware Resource 
+LUT : ~ 11000, FF :  ~3000, BRAM: 3.5
