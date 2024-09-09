@@ -7,6 +7,7 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
     // axi_slave prot
     input [7:0] s_axis_data,
     input s_axis_valid,
+    output s_axis_ready,
         
     // master
     output reg [7:0] output_data1, output_data9,  output_data17, output_data25,
@@ -20,6 +21,7 @@ module INPUT_BUF#(parameter width = 28, height = 28)(
     output reg output_valid,
     output reg buf_done_intr
     );
+    assign s_axis_ready = 1;
     
     reg [7:0] buffer [width * 5 - 1:0]; // six line buffers for first conv layer
     integer i;
