@@ -109,14 +109,12 @@ reg [19:0] cal_reg1, cal_reg2, cal_reg3, cal_reg4, cal_reg5, cal_reg6, cal_reg7,
                 cal_reg15 <= data_in_1 * weight[3*(cal_cnt) + OUTPUT_NUM * 14] + data_in_2 * weight[3* (cal_cnt) + 1 + OUTPUT_NUM *14] + data_in_3 * weight[3 * (cal_cnt) + 2 + OUTPUT_NUM * 14] + cal_reg15;
                 cal_reg16 <= data_in_1 * weight[3*(cal_cnt) + OUTPUT_NUM * 15] + data_in_2 * weight[3* (cal_cnt) + 1 + OUTPUT_NUM *15] + data_in_3 * weight[3 * (cal_cnt) + 2 + OUTPUT_NUM * 15] + cal_reg16;
                if(cal_cnt==14)begin
-            if(cal_cnt ==14)begin
-                data_out1 <= bias[0]; data_out2 <= bias[1]; data_out3 <= bias[2]; data_out4 <= bias[3];
-                data_out5 <= bias[4]; data_out6 <= bias[5]; data_out7 <= bias[6]; data_out8 <= bias[7];
-                data_out9 <= bias[8]; data_out10 <= bias[9]; data_out11 <= bias[10]; data_out12 <= bias[11];
-                data_out13 <= bias[12]; data_out14 <= bias[13]; data_out15 <= bias[14]; data_out16 <= bias[15];   
-            end
-               
-               
+                  if(cal_cnt ==14)begin
+                     cal_reg1 <= cal_reg1 + bias[0]; cal_reg2 <= cal_reg2 + bias[1]; cal_reg3 <= cal_reg3 + bias[2]; cal_reg4 <= cal_reg4 + bias[3];
+                     cal_reg5 <= cal_reg5 + bias[4]; cal_reg6 <= cal_reg6 + bias[5]; cal_reg7 <= cal_reg7 + bias[6]; cal_reg8 <= cal_reg8 +bias[7];
+                     cal_reg9 <= cal_reg9 + bias[9]; cal_reg10 <= cal_reg10 + bias[9]; data_out11 <= cal_reg11 + bias[10]; data_out12 <= cal_reg12+ bias[11];
+                     cal_reg13 <= cal_reg13 + bias[12]; cal_reg14 <= cal_reg14 + bias[13]; data_out15 <= cal_reg15+ bias[14]; data_out16 <= cal_reg16+ bias[15];   
+                  end
                end
             
             end
